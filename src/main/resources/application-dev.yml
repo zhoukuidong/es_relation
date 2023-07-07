@@ -1,0 +1,66 @@
+#表示非生产环境，开启swagger
+SWAGGER_ENABLE: false
+
+##数据库配置
+#数据库IP地址
+DB_MYSQL_HOST: 127.0.0.1
+#数据库端口
+DB_MYSQL_PORT: 3306
+#数据库名称
+DB_MYSQL_DATABASE: szhz_cq_culate
+#数据库用户名
+DB_MYSQL_USERNAME: root
+#数据库密码
+#DB_MYSQL_PASSWORD: 123456
+#SQL日志扫描宝地址，除本地开发环境，其余环境禁止开启
+DB_MYSQL_LOG: com.zkd.demo.mapper
+
+##redis配置
+#redis的数据库
+DB_REDIS_DATABASE: 0
+#redis地址
+DB_REDIS_HOST: 127.0.0.1
+#redis端口
+DB_REDIS_PORT: 6379
+#redis密码
+DB_REDIS_PASSWORD: 123456
+
+##Oss配置
+OSS_BUCKET_NAME: sjzypt-test
+OSS_ACCESS_KEY_ID: 6obVJAqgs0ypseAl
+OSS_ACCESS_KEY_SECRET: grwmqGL0Jzu9KCKssBPH8DoWS3vLQi
+OSS_ENDPOINT: https://ybt.bigdatacq.com:15352/sjzypt-test/
+
+##用户权限中心配置
+#用户权限中心加解密key
+ENCRYPTORKEY: 19ea5c4afd2366b4
+#租户编号
+TENANT_ID: TEN_5005001684231483920194335895
+#应用编号
+APP_CODE: APP_6006001685002404948180063988
+#应用鉴权的clientId
+CLIENT_ID: szhz_n2i8bjkmgb1n8oby2pku799nx
+#应用鉴权的secret
+CLIENT_SECRET: xwtrb0geljktlnzieicxtqwbtc07t0z2sv6nucsb
+#用户权限中心后端API接口地址
+SERVER_API: https://ybtt.bigdatacq.com:15393/
+#用户权限中心首页地址，构建页面重定向、免密跳转到用户权限中心地址时需要
+SERVER_INDEX: https://ybtt.bigdatacq.com:15351/
+
+
+MINE_URL: https://ybtt.bigdatacq.com:15412/task/detail/person?ledgerCode=xxx&userCode=xxx
+THIRD_URL: yqqcloud.top:10009/api/duty/basic
+
+retrofit:
+  # 全局日志打印配置
+  global-log:
+    # 启用日志打印
+    enable: true
+    # 全局日志打印级别
+    log-level: info
+    # 全局日志打印策略
+    log-strategy: BODY
+
+external:
+  raise:
+    enabled: true

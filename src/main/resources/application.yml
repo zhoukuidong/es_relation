@@ -1,0 +1,179 @@
+server:
+  port: 8087
+  servlet:
+    context-path: /${spring.application.name}
+
+
+spring:
+  servlet:
+    multipart:
+      #解除Tomcat文件大小限制，通过代码进行判断
+      max-file-size: -1
+      max-request-size: -1
+  dict:
+    enable-db: true
+    enable-package: true
+    dict-package: com.digital.cq.culate.common.enums
+  config:
+    activate:
+      on-profile: @env-profile@
+  application:
+    name: culate
+  logging:
+    #日志等级
+    level: info
+    #日志保存时间
+    existsDays: 7
+    #日志存储位置
+    filePath: ./logs
+    #打印SQL
+    mapperScan: ${DB_MYSQL_LOG:""}
+  flyway:
+    #是否开启flywary，t默认true-开启.
+    enabled: true
+    #开始执行基准迁移时对现有的schema的版本打标签，默认值为1
+    #baseline-version: 1
+    #检查迁移脚本的位置是否存在，默认false
+    #check-location: true
+    #迁移脚本的位置，默认db/migration
+    locations: classpath:migration
+    #在没有元数据表的情况下，针对非空Schema执行迁移时是否自动调用基线。
+    baseline-on-migrate: true
+    #指定flyway的版本表名
+    #table: szhz-cq-culate-server-boot_flyway_schema_history
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+    # 设置mysql 允许timestamp为null
+    url: jdbc:mysql://${DB_MYSQL_HOST:localhost}:${DB_MYSQL_PORT:3306}/${DB_MYSQL_DATABASE:szhz_form_generator}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=CTT&zeroDateTimeBehavior=convertToNull&useSSL=false&autoReconnect=true
+    username: ${DB_MYSQL_USERNAME:root}
+    password: ${DB_MYSQL_PASSWORD:123456}
+    druid:
+      # 配置初始化大小、最小、最大
+      initial-size: 20
+      min-idle: 20
+      max-active: 100
+      # 配置获取连接等待超时的时间(单位：毫秒)
+      max-wait: 60000
+      # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      time-between-eviction-runs-millis: 60000
+      # 配置一个连接在池中最小生存的时间，单位是毫秒
+      min-evictable-idle-time-millis: 600000
+      max-evictable-idle-time-millis: 900000
+      # 用来测试连接是否可用的SQL语句,默认值每种数据库都不相同,这是mysql
+      validationQuery: select 1
+      # 应用向连接池申请连接，并且testOnBorrow为false时，连接池将会判断连接是否处于空闲状态，如果是，则验证这条连接是否可用
+      testWhileIdle: true
+      # 如果为true，默认是false，应用向连接池申请连接时，连接池会判断这条连接是否是可用的
+      testOnBorrow: false
+      # 如果为true（默认false），当应用使用完连接，连接池回收连接的时候会判断该连接是否还可用
+      testOnReturn: false
+      # 是否缓存preparedStatement，也就是PSCache。PSCache对支持游标的数据库性能提升巨大，比如说oracle
+      poolPreparedStatements: true
+      # 要启用PSCache，必须配置大于0，当大于0时， poolPreparedStatements自动触发修改为true，
+      # 在Druid中，不会存在Oracle下PSCache占用内存过多的问题，
+      # 可以把这个数值配置大一些，比如说100
+      maxOpenPreparedStatements: 20
+      # 连接池中的minIdle数量以内的连接，空闲时间超过minEvictableIdleTimeMillis，则会执行keepAlive操作
+      keepAlive: true
+      # Spring 监控，利用aop 对指定接口的执行时间，jdbc数进行记录
+      #aop-patterns: "${package}.dao.mapper.*"
+      # 启用内置过滤器（第一个 stat必须，否则监控不到SQL）
+      #filters: stat,wall,log4j2
+  redis:
+    database: ${DB_REDIS_DATABASE:0}
+    host: ${DB_REDIS_HOST:localhost}
+    port: ${DB_REDIS_PORT:6379}
+    password: ${DB_REDIS_PASSWORD:123456}
+    connect-timeout: 10000
+    timeout: 10000
+    lettuce:
+      pool:
+        max-active: 200
+        max-idle: 10
+        max-wait: -1ms
+        min-idle: 0
+  elasticsearch:
+    rest:
+      uris: localhost:9200
+  data:
+    elasticsearch:
+      cluster-name:
+
+
+knife4j:
+  #包扫描地址
+  basePackage: com.digital.cq.culate
+  #开启增强配置
+  enable: true
+  #是否显示界面中SwaggerModel功能
+  enableSwaggerModels: false
+  #是否开启界面中对某接口的版本控制,如果开启，后端变化后Ui界面会存在小蓝点
+  enableVersion: true
+  # 开启Swagger的Basic认证功能,默认是false
+  basic:
+    enable: false
+    # Basic认证用户名
+    username: test
+    # Basic认证密码
+    password: test
+  # 开启生产环境屏蔽 false 表示非生产环境
+  production: ${SWAGGER_ENABLE:true}
+  title: 后端服务文档
+  version: 1.0
+  description: xxxxx的后端服务文档
+  name: xxx
+  url: http://localhost:${server.server}/doc.html
+  email: xxxxx
+  headers:
+    #可不配置
+    Authorization: 访问令牌
+
+#mybaties-plus相关配置
+mybatis-plus:
+  global-config:
+    db-config:
+      id-type: auto
+      #https://mp.baomidou.com/guide/logic-delete.html
+      logic-delete-field: deleteFlag  # 全局逻辑删除的实体字段名(since 3.3.0,配置后可以忽略不配置步骤2)
+      logic-delete-value: Y # 逻辑已删除值(默认为 1)
+      logic-not-delete-value: N # 逻辑未删除值(默认为 0)
+
+#加密密码相关
+jasypt:
+  encryptor:
+    property:
+      prefix: HEALTH_CODE(   #  加密前缀
+      suffix: )            #  加密后缀
+    password: digital-hangzhou@2021 # 加密密钥
+    #暂时关闭bootstrap 支持 https://github.com/ulisesbocchio/jasypt-spring-boot/issues/256
+    bootstrap: false
+
+
+# OSS相关配置
+custom:
+  oss:
+    #是否开启对象存储功能
+    enable: true
+    #选择使用的对象存储的类型，目前支持aliyun_oss 以及minio
+    type: aliyun_oss
+    #声明桶的名称，方便获取使用，实际与客户端加载无关
+    bucket-name: ${OSS_BUCKET_NAME:}
+    #阿里云OSS的配置
+    aliyun:
+      #阿里云 OSS accessKeyId
+      accessKeyId: ${OSS_ACCESS_KEY_ID:}
+      #阿里云 OSS accessKeySecret
+      accessKeySecret: ${OSS_ACCESS_KEY_SECRET:}
+      #阿里云 OSS 节点地址-
+      endpoint: ${OSS_ENDPOINT:}
+      #阿里云 OSS 是否为私有网络（政务网）
+      isPrivate: true
+  cors:
+    # 是否开启跨域 默认关闭
+    enable: false
+
+
+
+
+
