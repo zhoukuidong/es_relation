@@ -29,6 +29,9 @@ import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.BucketOrder;
+import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
+import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
+import org.elasticsearch.search.aggregations.bucket.histogram.LongBounds;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
@@ -371,7 +374,34 @@ class DemoApplicationTests {
         }
     }
 
-
+    @Test
+    public void testTimeGroup() throws Exception{
+        SearchRequest searchRequest = new SearchRequest("test_time_group");
+        // 创建一个日期直方图聚合
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder()
+                .query(QueryBuilders.matchAllQuery())
+                .aggregation(
+                        AggregationBuilders.dateHistogram("time_histogram")
+                                .field("createTime")
+                                .calendarInterval(DateHistogramInterval.MINUTE) // 设置时间间隔为1分钟
+                                .format("yyyy-MM-dd HH:mm") // 可选，指定返回的时间格式
+                                .minDocCount(0) // 可选，设置最小文档计数，默认为0
+                                .extendedBounds(new LongBounds("2023-07-27 10:20", "2023-07-27 10:30")) // 可选，设置时间范围
+                )
+                .size(0); // 设置返回的文档数量为0，只返回聚合结果
+        searchRequest.source(searchSourceBuilder);
+        // 执行搜索
+        SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+        // 获取聚合结果
+        Histogram histogram = searchResponse.getAggregations().get("time_histogram");
+        List<? extends Histogram.Bucket> buckets = histogram.getBuckets();
+        // 遍历输出聚合结果
+        for (Histogram.Bucket entry : buckets) {
+            String keyAsString = entry.getKeyAsString();
+            long docCount = entry.getDocCount();
+            System.out.println("时间：" + keyAsString + ", 文档数量：" + docCount);
+        }
+    }
 
 
 }
