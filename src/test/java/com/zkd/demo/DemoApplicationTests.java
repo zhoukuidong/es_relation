@@ -2,6 +2,8 @@ package com.zkd.demo;
 
 import cn.hutool.core.collection.CollUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 import com.zkd.demo.entity.HouseResidentRelationEntity;
 import com.zkd.demo.repository.HouseResidentRelationRepository;
 import com.zkd.demo.service.HouseResidentRelationService;
@@ -401,6 +403,14 @@ class DemoApplicationTests {
             long docCount = entry.getDocCount();
             System.out.println("时间：" + keyAsString + ", 文档数量：" + docCount);
         }
+    }
+
+    @Test
+    public void testGuavaUtil(){
+        Joiner joiner = Joiner.on("; ").skipNulls();
+        System.out.println(joiner.join("Harry", null, "Ron", "Hermione"));
+        System.out.println(Splitter.on("|").trimResults().omitEmptyStrings().splitToList("123 || zkd|789"));
+        System.out.println(Splitter.on("#").withKeyValueSeparator("=").split("name=zkd#age=28#weight=59"));
     }
 
 
