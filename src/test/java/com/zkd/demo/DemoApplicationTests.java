@@ -180,7 +180,8 @@ class DemoApplicationTests {
     @Test
     public void queryStringQuery() throws Exception{
         //所有分词or的结果
-        QueryStringQueryBuilder queryStringQueryBuilder = QueryBuilders.queryStringQuery("1 Melvin Lane OR 3390 Melvin Lane");
+        QueryStringQueryBuilder queryStringQueryBuilder = QueryBuilders.queryStringQuery("*道东方广*");
+        //.field("address");
         System.out.println(JSONObject.toJSONString(houseResidentRelationService.commonQuery("house_resident_relation", queryStringQueryBuilder, null,HouseResidentRelationEntity.class)));
     }
 
@@ -407,6 +408,7 @@ class DemoApplicationTests {
 
     @Test
     public void testGuavaUtil(){
+        System.out.println(houseResidentRelationRepository);
         Joiner joiner = Joiner.on("; ").skipNulls();
         System.out.println(joiner.join("Harry", null, "Ron", "Hermione"));
         System.out.println(Splitter.on("|").trimResults().omitEmptyStrings().splitToList("123 || zkd|789"));

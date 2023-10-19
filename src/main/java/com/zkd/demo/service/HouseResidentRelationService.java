@@ -37,8 +37,6 @@ public class HouseResidentRelationService {
     @Resource
     private RestHighLevelClient restHighLevelClient;
 
-    @Resource
-    private HouseResidentRelationRepository houseResidentRelationRepository;
 
     public void matchAllQuery() throws Exception{
         SearchRequest searchRequest = new SearchRequest("house_resident_relation");
