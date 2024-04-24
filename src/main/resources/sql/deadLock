@@ -1,0 +1,120 @@
+#高并发情况下唯一索引导致的死锁问题复现
+
+##############################################################################################session1 准备表结构 查看锁信息
+create table t(
+    id int primary key auto_increment,
+    c1 int,
+    c2 int default 0,
+    unique key uk_c1(c1,c2)
+);
+show variables  like "%performance_schema%"
+SHOW ENGINE INNODB STATUS;
+
+SELECT * FROM information_schema.INNODB_LOCKS;
+
+SELECT * FROM INFORMATION_SCHEMA.INNODB_TRX;
+
+SELECT * FROM sys.processlist
+
+select * from sys.innodb_lock_waits
+
+select * from sys.schema_table_lock_waits
+
+
+
+#############################################################################################session2
+
+begin;
+replace into t(id,c1,c2,d) values(14,3,9,8) ;
+replace into t(id,c1,c2,d) values(12,6,3,3) ;
+commit;
+
+rollback;
+
+begin;
+insert t(id,c1,c2,d) values(13,6,7,3) on duplicate key update id = 13,c1=6,c2=7,d=3 ;
+insert t(id,c1,c2,d) values(14,3,7,8) on duplicate key update id = 14,c1=3,c2=7,d=8 ;
+commit;
+
+begin;
+insert t(id,c1,c2,d) values(14,3,6,9);
+rollback ;
+
+
+begin;
+select * from t where c1 = 6 and c2 = 7 for update ;
+select * from t where c1 = 3 and c2 = 7 for update;
+commit;
+
+begin;
+replace into t(id,c1,c2,d) values(13,3,7,5);
+replace into t(id,c1,c2,d) values(18,6,7,10);
+commit;
+
+rollback ;
+
+#############################
+begin;
+replace into t2(id,c1,c2,d) values(12,6,3,3) ;
+
+select * from t2 where id =12;
+
+replace into t2(id,c1,c2,d) values(14,3,9,8) ;
+commit;
+
+rollback ;
+
+#############################
+begin;
+replace into t2(id,c1,c2,d) values(23,1,2,3) ;
+replace into t2(id,c1,c2,d) values(14,3,9,8) ;
+commit;
+
+rollback ;
+
+
+##############################################################################################session3
+begin;
+replace into t(id,c1,c2,d) values(20,3,9,5);
+replace into t(id,c1,c2,d) values(16,6,3,10);
+commit;
+
+rollback;
+
+begin;
+insert t(id,c1,c2,d) values(12,3,7,5) on duplicate key update id = 12,c1=3,c2=7,d=5 ;
+insert t(id,c1,c2,d) values(18,6,7,10) on duplicate key update id = 18,c1=6,c2=7,d=10 ;
+commit;
+
+begin;
+select * from t where id = 13 lock in share mode ;
+rollback ;
+
+begin;
+select * from t where c1 = 3 and c2 = 7 for update ;
+select * from t where c1 = 6 and c2 = 7 for update;
+commit;
+
+begin;
+replace into t(id,c1,c2,d) values(14,3,7,5);
+replace into t(id,c1,c2,d) values(18,6,7,10);
+commit;
+
+rollback ;
+
+#############################
+begin;
+replace into t2(id,c1,c2,d) values(20,3,9,5);
+
+replace into t2(id,c1,c2,d) values(12,6,3,10);
+commit;
+
+rollback;
+
+#############################
+begin;
+replace into t2(id,c1,c2,d) values(18,3,9,5);
+replace into t2(id,c1,c2,d) values(25,1000,800,10);
+commit;
+
+rollback;
