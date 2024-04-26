@@ -1,4 +1,796 @@
-#高并发情况下唯一索引导致的死锁问题复现
+#死锁日志：
+=====================================
+2024-04-10 10:51:33 0x7fc8ac07f700 INNODB MONITOR OUTPUT
+=====================================
+Per second averages calculated from the last 13 seconds
+-----------------
+BACKGROUND THREAD
+-----------------
+srv_master_thread loops: 6560033 srv_active, 0 srv_shutdown, 20280674 srv_idle
+srv_master_thread log flush and writes: 26840707
+----------
+SEMAPHORES
+----------
+OS WAIT ARRAY INFO: reservation count 403165084
+OS WAIT ARRAY INFO: signal count 2140410113
+RW-shared spins 0, rounds 7732931629, OS waits 365176146
+RW-excl spins 0, rounds 1765407043, OS waits 7442448
+RW-sx spins 4189027, rounds 235917848, OS waits 1873791
+Spin rounds per wait: 7732931629.00 RW-shared, 1765407043.00 RW-excl, 56.32 RW-sx
+------------------------
+LATEST DETECTED DEADLOCK
+------------------------
+2024-04-10 10:36:42 0x7fc9206f4700
+*** (1) TRANSACTION:
+TRANSACTION 31179694, ACTIVE 0 sec inserting
+mysql tables in use 1, locked 1
+LOCK WAIT 5 lock struct(s), heap size 1136, 4 row lock(s), undo log entries 2
+MySQL thread id 3152794, OS thread handle 140499793475328, query id 6013119300 172.16.241.156 sqy update
+REPLACE INTO sq_resident (REL_ID,HOUSE_ID,PERSON_ID,JW_ID,LIVE_TYPE,TAGS,TEL,IF_RESIDENCE,CRE_TIME,OP_TIME,LIVE_STATUS,TEL_LX,CRE_USER_ID,CRE_USER_NAME,EMERGENCY_CONTACT,EMERGENCY_PHONE) VALUES ('eecf99b1-f4a6-11ee-9837-00163e011098','5a98e261e5ec418fbb9133040fea4208','e0c1bb1a87b74ed983eb6fb23e8696e0','310115016066',null,'上云居民,','F55B7005EF7F131F1BC4671C067B0CAF',null,'2024-04-07 14:20:30','2024-04-10 10:36:41','0','32186B043E2F700DAECFFD0AC84B89D2','60014','朱纯',null,null)
+*** (1) WAITING FOR THIS LOCK TO BE GRANTED:
+RECORD LOCKS space id 3142 page no 887779 n bits 192 index FK_Reference_1 of table `dc_resident`.`sq_resident` trx id 31179694 lock_mode X waiting
+Record lock, heap no 118 PHYSICAL RECORD: n_fields 3; compact format; info bits 0
+ 0: len 30; hex 653063316262316138376237346564393833656236666232336538363936; asc e0c1bb1a87b74ed983eb6fb23e8696; (total 32 bytes);
+ 1: len 30; hex 373364303636616335633830343833346131643438663464343631396236; asc 73d066ac5c804834a1d48f4d4619b6; (total 32 bytes);
+ 2: len 30; hex 36663065323237322d663664632d313165652d393833372d303031363365; asc 6f0e2272-f6dc-11ee-9837-00163e; (total 36 bytes);
+
+*** (2) TRANSACTION:
+TRANSACTION 31179693, ACTIVE 0 sec inserting
+mysql tables in use 1, locked 1
+6 lock struct(s), heap size 1136, 5 row lock(s), undo log entries 3
+MySQL thread id 3152800, OS thread handle 140501809317632, query id 6013119305 172.16.241.157 sqy update
+REPLACE INTO sq_resident (REL_ID,HOUSE_ID,PERSON_ID,JW_ID,LIVE_TYPE,TAGS,TEL,IF_RESIDENCE,CRE_TIME,OP_TIME,LIVE_STATUS,TEL_LX,CRE_USER_ID,CRE_USER_NAME,EMERGENCY_CONTACT,EMERGENCY_PHONE) VALUES ('29d3d11f-f6e3-11ee-9837-00163e011098','584ea320466047518376cecc6874f177','e0c1bb1a87b74ed983eb6fb23e8696e0','310115016066',null,'上云居民,','F55B7005EF7F131F1BC4671C067B0CAF',null,'2024-04-10 10:36:41','2024-04-10 10:36:41','1','32186B043E2F700DAECFFD0AC84B89D2','60014','朱纯',null,null)
+*** (2) HOLDS THE LOCK(S):
+RECORD LOCKS space id 3142 page no 887779 n bits 192 index FK_Reference_1 of table `dc_resident`.`sq_resident` trx id 31179693 lock_mode X locks rec but not gap
+Record lock, heap no 118 PHYSICAL RECORD: n_fields 3; compact format; info bits 0
+ 0: len 30; hex 653063316262316138376237346564393833656236666232336538363936; asc e0c1bb1a87b74ed983eb6fb23e8696; (total 32 bytes);
+ 1: len 30; hex 373364303636616335633830343833346131643438663464343631396236; asc 73d066ac5c804834a1d48f4d4619b6; (total 32 bytes);
+ 2: len 30; hex 36663065323237322d663664632d313165652d393833372d303031363365; asc 6f0e2272-f6dc-11ee-9837-00163e; (total 36 bytes);
+
+*** (2) WAITING FOR THIS LOCK TO BE GRANTED:
+RECORD LOCKS space id 3142 page no 887779 n bits 192 index FK_Reference_1 of table `dc_resident`.`sq_resident` trx id 31179693 lock_mode X locks gap before rec insert intention waiting
+Record lock, heap no 115 PHYSICAL RECORD: n_fields 3; compact format; info bits 32
+ 0: len 30; hex 653063316262316138376237346564393833656236666232336538363936; asc e0c1bb1a87b74ed983eb6fb23e8696; (total 32 bytes);
+ 1: len 30; hex 356139386532363165356563343138666262393133333034306665613432; asc 5a98e261e5ec418fbb9133040fea42; (total 32 bytes);
+ 2: len 30; hex 65656366393962312d663461362d313165652d393833372d303031363365; asc eecf99b1-f4a6-11ee-9837-00163e; (total 36 bytes);
+
+*** WE ROLL BACK TRANSACTION (1)
+------------
+TRANSACTIONS
+------------
+Trx id counter 31186075
+Purge done for trx's n:o < 31186072 undo n:o < 0 state: running but idle
+History list length 85
+LIST OF TRANSACTIONS FOR EACH SESSION:
+---TRANSACTION 421991585959968, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585972736, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585971824, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585970912, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585970000, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585695488, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585969088, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585916192, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585907984, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585968176, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585967264, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585946288, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585964528, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585963616, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585962704, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585730144, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585696400, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585945376, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585944464, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585942640, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585938992, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585937168, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585936256, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585941728, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585940816, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585935344, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585934432, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585933520, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585932608, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585931696, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585930784, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585929872, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585928048, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585919840, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585927136, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585921664, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585920752, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585918928, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585917104, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585910720, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585884272, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585883360, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585879712, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585878800, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585877888, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585876976, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585872416, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585871504, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585869680, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585868768, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585866944, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585848704, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585757504, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585847792, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585758416, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585744736, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585866032, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585865120, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585863296, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585862384, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585861472, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585860560, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585859648, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585858736, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585853264, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585852352, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585845968, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585845056, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585818608, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585817696, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585773008, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585764800, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585763888, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585746560, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585709168, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585698224, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585776656, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585775744, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585772096, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585771184, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585768448, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585767536, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585743824, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585711904, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585710992, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585762976, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585762064, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585760240, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585759328, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585748384, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585747472, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585742912, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585737440, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585735616, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585734704, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585729232, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585728320, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585716464, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585706432, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585705520, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585704608, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585701872, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585700960, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585697312, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585755680, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585753856, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585742000, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585719200, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585691840, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585750208, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585740176, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585732880, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585731968, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585738352, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585736528, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585959056, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585958144, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585957232, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585955408, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585954496, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585953584, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585952672, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585951760, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585950848, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585949024, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585948112, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585939904, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585938080, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585905248, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585904336, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585824080, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585800368, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585766624, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585765712, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585749296, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585887008, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585886096, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585770272, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585769360, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585718288, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585943552, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585928960, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585926224, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585925312, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585924400, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585923488, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585922576, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585918016, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585914368, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585912544, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585752944, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585909808, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585908896, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585906160, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585903424, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585902512, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585901600, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585900688, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585899776, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585898864, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585897952, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585897040, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585896128, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585895216, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585894304, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585893392, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585892480, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585891568, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585890656, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585889744, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585888832, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585887920, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585882448, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585881536, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585880624, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585876064, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585875152, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585874240, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585873328, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585870592, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585867856, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585857824, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585856912, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585856000, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585855088, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585854176, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585851440, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585850528, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585849616, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585846880, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585773920, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585754768, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585752032, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585844144, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585843232, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585842320, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585841408, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585840496, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585839584, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585838672, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585837760, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585836848, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585835936, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585835024, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585834112, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585833200, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585832288, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585831376, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585830464, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585829552, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585828640, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585827728, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585826816, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585825904, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585824992, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585823168, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585822256, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585821344, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585820432, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585819520, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585816784, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585815872, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585814960, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585814048, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585813136, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585812224, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585811312, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585810400, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585809488, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585808576, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585807664, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585806752, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585805840, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585804928, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585804016, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585803104, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585802192, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585801280, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585799456, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585798544, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585797632, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585796720, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585795808, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585794896, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585793984, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585793072, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585792160, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585791248, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585790336, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585789424, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585787600, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585786688, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585785776, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585784864, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585783952, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585783040, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585782128, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585781216, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585780304, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585779392, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585778480, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585777568, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585774832, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585710080, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585751120, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585727408, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585726496, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585725584, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585724672, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585723760, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585722848, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585721936, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585721024, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585720112, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585708256, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585707344, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585703696, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585702784, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585700048, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585713728, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585717376, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585731056, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585714640, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585693664, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585699136, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585715552, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585745648, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585739264, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585756592, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585864208, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585694576, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991586009216, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585987328, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585913456, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585911632, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585712816, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585761152, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585733792, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585907072, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585741088, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585961792, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991586032016, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585956320, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991586007392, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585984592, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585949936, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585915280, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585885184, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585788512, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991586011952, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991586001920, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585998272, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585692752, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585681808, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585689104, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585688192, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585687280, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585686368, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585685456, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585684544, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585683632, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585682720, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585680896, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585690928, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+---TRANSACTION 421991585690016, not started
+0 lock struct(s), heap size 1136, 0 row lock(s)
+--------
+FILE I/O
+--------
+I/O thread 0 state: waiting for i/o request (insert buffer thread)
+I/O thread 1 state: waiting for i/o request (log thread)
+I/O thread 2 state: waiting for i/o request (read thread)
+I/O thread 3 state: waiting for i/o request (read thread)
+I/O thread 4 state: waiting for i/o request (read thread)
+I/O thread 5 state: waiting for i/o request (read thread)
+I/O thread 6 state: waiting for i/o request (write thread)
+I/O thread 7 state: waiting for i/o request (write thread)
+I/O thread 8 state: waiting for i/o request (write thread)
+I/O thread 9 state: waiting for i/o request (write thread)
+Pending normal aio reads: [0, 0, 0, 0] , aio writes: [0, 0, 0, 0] ,
+ ibuf aio reads:, log i/o's:, sync i/o's:
+Pending flushes (fsync) log: 0; buffer pool: 0
+11982301435 OS file reads, 1016125055 OS file writes, 94105054 OS fsyncs
+9.85 reads/s, 16384 avg bytes/read, 29.07 writes/s, 8.54 fsyncs/s
+-------------------------------------
+INSERT BUFFER AND ADAPTIVE HASH INDEX
+-------------------------------------
+Ibuf: size 1, free list len 4302, seg size 4304, 147604748 merges
+merged operations:
+ insert 134048608, delete mark 167345740, delete 300894
+discarded operations:
+ insert 0, delete mark 0, delete 0
+Hash table size 3187567, node heap has 400 buffer(s)
+Hash table size 3187567, node heap has 5158 buffer(s)
+Hash table size 3187567, node heap has 859 buffer(s)
+Hash table size 3187567, node heap has 937 buffer(s)
+Hash table size 3187567, node heap has 1002 buffer(s)
+Hash table size 3187567, node heap has 5160 buffer(s)
+Hash table size 3187567, node heap has 10 buffer(s)
+Hash table size 3187567, node heap has 235 buffer(s)
+185.14 hash searches/s, 133.53 non-hash searches/s
+---
+LOG
+---
+Log sequence number 1247324525776
+Log flushed up to   1247324525757
+Pages flushed up to 1247324469611
+Last checkpoint at  1247324458234
+0 pending log flushes, 0 pending chkp writes
+35620833 log i/o's done, 4.54 log i/o's/second
+----------------------
+BUFFER POOL AND MEMORY
+----------------------
+Total large memory allocated 13268680704
+Dictionary memory allocated 4059118
+Buffer pool size   786432
+Free buffers       1022
+Database pages     771649
+Old database pages 284828
+Modified db pages  205
+Pending reads      0
+Pending writes: LRU 0, flush list 0, single page 0, flush chunk 0
+Pages made young 72082124937, not young 489727180444
+0.00 youngs/s, 0.00 non-youngs/s
+Pages read 11985477021, created 56838473, written 953490806
+0.00 reads/s, 0.00 creates/s, 0.00 writes/s
+Buffer pool hit rate 1000 / 1000, young-making rate 0 / 1000 not 5 / 1000
+Pages read ahead 0.00/s, evicted without access 0.00/s, Random read ahead 0.00/s
+LRU len: 771649, unzip_LRU len: 0
+I/O sum[1839]:cur[32], unzip sum[0]:cur[0]
+--------------
+ROW OPERATIONS
+--------------
+0 queries inside InnoDB, 0 queries in queue
+0 read views open inside InnoDB
+Process ID=94031, Main thread ID=140501663598336, state: sleeping
+Number of rows inserted 2365835519, updated 360906254, deleted 205677133, read 10495550799439
+22.77 inserts/s, 29.31 updates/s, 0.77 deletes/s, 20143.91 reads/s
+----------------------------
+END OF INNODB MONITOR OUTPUT
+============================
+
+
+
+#replace into 高并发情况下唯一索引导致的死锁问题复现
 
 ##############################################################################################session1 准备表结构 查看锁信息
 create table t(
