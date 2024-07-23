@@ -40,12 +40,12 @@ spring:
     #在没有元数据表的情况下，针对非空Schema执行迁移时是否自动调用基线。
     baseline-on-migrate: true
     #指定flyway的版本表名
-    #table: szhz-cq-culate-server-boot_flyway_schema_history
+    #table: zkd-cq-culate-server-boot_flyway_schema_history
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
     # 设置mysql 允许timestamp为null
-    url: jdbc:mysql://${DB_MYSQL_HOST:localhost}:${DB_MYSQL_PORT:3306}/${DB_MYSQL_DATABASE:szhz_form_generator}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=CTT&zeroDateTimeBehavior=convertToNull&useSSL=false&autoReconnect=true
+    url: jdbc:mysql://${DB_MYSQL_HOST:localhost}:${DB_MYSQL_PORT:3306}/${DB_MYSQL_DATABASE:zkd_form_generator}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=CTT&zeroDateTimeBehavior=convertToNull&useSSL=false&autoReconnect=true
     username: ${DB_MYSQL_USERNAME:root}
     password: ${DB_MYSQL_PASSWORD:123456}
     druid:

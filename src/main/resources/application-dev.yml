@@ -7,7 +7,7 @@ DB_MYSQL_HOST: 127.0.0.1
 #数据库端口
 DB_MYSQL_PORT: 3306
 #数据库名称
-DB_MYSQL_DATABASE: szhz_cq_culate
+DB_MYSQL_DATABASE: cus_cq_culate
 #数据库用户名
 DB_MYSQL_USERNAME: root
 #数据库密码
@@ -39,7 +39,7 @@ TENANT_ID: TEN_5005001684231483920194335895
 #应用编号
 APP_CODE: APP_6006001685002404948180063988
 #应用鉴权的clientId
-CLIENT_ID: szhz_n2i8bjkmgb1n8oby2pku799nx
+CLIENT_ID: zkd_n2i8bjkmgb1n8oby2pku799nx
 #应用鉴权的secret
 CLIENT_SECRET: xwtrb0geljktlnzieicxtqwbtc07t0z2sv6nucsb
 #用户权限中心后端API接口地址
