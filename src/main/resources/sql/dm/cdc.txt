@@ -1,0 +1,121 @@
+-- 支持参数组合
+-- call SCN_SELECT3(20606161, 20606172 , 'LOG_MINING_FLUSH,RESOURCE_SZGT');
+
+CREATE OR replace PROCEDURE SCN_SELECT3(vi_scn_start IN INT,
+                                       vi_scn_end IN INT,
+                                       vi_table_names in VARCHAR(50))
+
+AS
+    v_path varchar(255);
+    v_sql_str varchar2;
+    v_sql_str2 varchar2;
+    v_t_names VARCHAR2 DEFAULT vi_table_names;
+
+    v_msg varchar(255);
+    -- 1.查询有哪些归档日志
+CURSOR c_log_paths IS
+SELECT name FROM V$ARCHIVED_LOG ;
+
+BEGIN
+OPEN c_log_paths;
+loop
+FETCH c_log_paths INTO v_path;
+        EXIT WHEN c_log_paths%NOTFOUND;
+
+        -- 2.logminer加入日志文件
+        dbms_logmnr.add_logfile(v_path);
+
+        PRINT v_path;
+        v_path:=null;
+end loop;
+CLOSE c_log_paths;
+-- 3.开启归档日志
+sys.dbms_logmnr.start_logmnr(Options=>2128 );
+
+    -- 4.基于oracle的 进行查询达梦的redolog日志
+    v_sql_str := 'SELECT SCN,
+           SQL_REDO,
+           OPERATION_CODE,
+           "TIMESTAMP",
+           XID,
+           CSF,
+           TABLE_NAME SEG_OWNER,
+           OPERATION,
+           USERNAME,
+           ROW_ID,
+           "ROLL_BACK",
+           RS_ID,
+           STATUS,
+           INFO,
+           SSN,
+           THREAD#
+      FROM V$LOGMNR_CONTENTS
+     WHERE';
+     v_sql_str2 :=	' (SEG_OWNER IS NULL
+               OR SEG_OWNER NOT IN (''APPQOSSYS'',
+                                    ''AUDSYS'',
+                                    ''CTXSYS'',
+                                    ''DVSYS'',
+                                    ''DBSFWUSER'',
+                                    ''DBSNMP'',
+                                    ''GSMADMIN_INTERNAL'',
+                                    ''LBACSYS'',
+                                    ''MDSYS'',
+                                    ''OJVMSYS'',
+                                    ''OLAPSYS'',
+                                    ''ORDDATA'',
+                                    ''ORDSYS'',
+                                    ''OUTLN'',
+                                    ''SYS'',
+                                    ''SYSTEM'',
+                                    ''WMSYS'',
+                                    ''XDB''))
+       AND OPERATION_CODE IN (1,
+                              2,
+                              3,
+                              5,
+                              6,
+                              7,
+                              9,
+                              10,
+                              11,
+                              29,
+                              34,
+                              36,
+                              255) order by SCN';
+
+   -- SCN > vi_scn_start AND SCN <= vi_scn_end
+   IF vi_scn_start is NOT NULL THEN
+   	v_sql_str:= v_sql_str || ' SCN > ' || vi_scn_start ||' AND ';
+END IF;
+
+   IF vi_scn_end is NOT NULL THEN
+   	v_sql_str:= v_sql_str || ' SCN <= ' || vi_scn_end || ' AND ';
+END IF;
+
+   IF vi_table_names is NOT NULL THEN
+   	-- 处理多个表
+   	v_t_names := REPLACE (vi_table_names, ',', ''',''');
+   	v_sql_str:= v_sql_str || ' TABLE_NAME in ('''|| v_t_names || ''') AND ';
+
+END IF;
+
+   v_sql_str := v_sql_str || v_sql_str2;
+    PRINT 'sql:' || v_sql_str;
+EXECUTE IMMEDIATE v_sql_str;
+--  5.终止归档日志文件分析；
+DBMS_LOGMNR.END_LOGMNR();
+
+EXCEPTION
+		WHEN OTHERS THEN
+			PRINT 'error:' || SQLERRM;
+			PRINT 'sql:' || v_sql_str;
+
+			DBMS_OUTPUT.PUT_LINE('error:' || SQLERRM);
+			DBMS_OUTPUT.PUT_LINE('sql:' || v_sql_str);
+			DBMS_LOGMNR.END_LOGMNR();
+
+
+END;
+
+    call SCN_SELECT3(null,null,'DM_BIG_FIELDS');

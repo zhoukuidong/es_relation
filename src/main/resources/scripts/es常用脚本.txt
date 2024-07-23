@@ -1,0 +1,394 @@
+#关闭自动创建索引
+PUT /_cluster/settings
+{
+  "persistent": {
+    "action.auto_create_index": "false"
+  }
+}
+
+#清空所有索引
+DELETE /*.apm-agent-configuration
+DELETE /centralhub_schedule_task
+
+#查询所有索引数据库
+GET /_cat/indices?v&
+
+#查询指定索引
+GET centralhub_schedule_task
+GET centralhub_schedule_task_run_log
+#查看pipeline
+GET _ingest/pipeline/connector_task_run_logger
+GET _ingest/pipeline/json_to_nested
+
+
+#删除索引
+DELETE centralhub_schedule_task
+DELETE centralhub_schedule_task_run_log
+GET centralhub_schedule_task/_mapping
+GET centralhub_schedule_task_run_log/_mapping
+
+#删除pipeline
+DELETE _ingest/pipeline/json_to_nested
+DELETE _ingest/pipeline/connector_task_run_logger
+
+
+#查询数据库所有数据
+GET centralhub_schedule_task/_search
+{
+  
+  "query": {
+    "bool": {
+      "must": [
+
+       
+      ]
+    }
+  }
+}
+#创建pipeline
+PUT _ingest/pipeline/connector_task_run_logger
+{
+  "description": "针对于数据高铁运行日志非JSON数据结构进行处理，并将相关字段提取到ES元素字段",    
+  "processors": [
+    {
+      "grok": {
+        "field": "message",
+        "patterns": [
+          "(?m)\\[%{TIMESTAMP_ISO8601:taskTsStr}\\]\\s*\\[%{DATA:taskName}\\]\\s*\\[%{DATA:centralhubTaskId}\\]\\s*\\[%{DATA:centralhubTaskRunId}\\]\\s*\\[%{DATA:type}\\]\\s*\\[%{DATA:ok}\\]\\s*\\[(?<taskMessage>.*)\\]\\s*",
+          "(?m)\\[%{TIMESTAMP_ISO8601:taskTsStr}\\]\\s*\\[%{DATA:centralhubTaskId}\\]\\s*\\[%{DATA:centralhubTaskRunId}\\]\\s*\\[%{DATA:type}\\]\\s*\\[%{DATA:ok}\\]\\s*\\[(?<taskMessage>.*)\\]\\s*"
+        ],
+        "ignore_missing": true
+      }
+    },
+    {
+      "date": {
+        "field": "taskTsStr",
+        "target_field": "taskTs",
+        "formats": ["yyyy-MM-dd HH:mm:ss,SSS"]
+      }
+    },
+    {
+      "remove": {
+        "field": "message"
+      }
+    }
+  ]
+}
+
+
+
+
+DELETE centralhub_schedule_task_run_log
+#创建索引
+PUT centralhub_schedule_task_run_log
+{
+  "mappings": {
+    "properties": {
+      "@timestamp": {
+        "type": "date"
+      },
+      "centralhubTaskId": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "centralhubTaskRunId": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "message": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "taskMessage": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 10240
+          }
+        }
+      },
+      "ok": {
+        "type": "boolean"
+      },
+      "taskTsStr": {
+        "type": "date",
+        "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
+      },
+      "type": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      }
+    }
+  }
+}
+
+#创建索引
+PUT centralhub_schedule_task
+{
+  "settings": {
+    "index.default_pipeline": "json_to_nested"
+  },
+    "mappings" : {
+      "properties" : {
+        "centralhubTaskId" : {
+          "type" : "text",
+          "fields" : {
+            "keyword" : {
+              "type" : "keyword",
+              "ignore_above" : 256
+            }
+          }
+        },
+        "centralhubTaskRunId" : {
+          "type" : "text",
+          "fields" : {
+            "keyword" : {
+              "type" : "keyword",
+              "ignore_above" : 256
+            }
+          }
+        },
+        "content" : {
+          "type" : "text",
+          "fields" : {
+            "keyword" : {
+              "type" : "keyword",
+              "ignore_above" : 256
+            }
+          }
+        },
+        "delay" : {
+          "type" : "long"
+        },
+        "errorMessage" : {
+          "type" : "text",
+          "fields" : {
+            "keyword" : {
+              "type" : "keyword",
+              "ignore_above" : 256
+            }
+          }
+        },
+        "fields" : {
+          "type" : "text",
+          "fields" : {
+            "keyword" : {
+              "type" : "keyword",
+              "ignore_above" : 256
+            }
+          }
+        },
+        "jsonFields" : {
+          "type" : "nested",
+          "include_in_parent" : true,
+          "properties" : {
+            "dataTimeValue" : {
+              "type" : "date",
+              "format" : "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
+            },
+            "key" : {
+              "type" : "keyword"
+            },
+            "value" : {
+              "type" : "keyword"
+            }
+          }
+        },
+        "msg" : {
+          "type" : "text",
+          "fields" : {
+            "keyword" : {
+              "type" : "keyword",
+              "ignore_above" : 256
+            }
+          }
+        },
+        "ok" : {
+          "type" : "text",
+          "fields" : {
+            "keyword" : {
+              "type" : "keyword",
+              "ignore_above" : 256
+            }
+          }
+        },
+        "op" : {
+          "type" : "text",
+          "fields" : {
+            "keyword" : {
+              "type" : "keyword",
+              "ignore_above" : 256
+            }
+          }
+        },
+        "syncAll" : {
+          "type" : "text",
+          "fields" : {
+            "keyword" : {
+              "type" : "keyword",
+              "ignore_above" : 256
+            }
+          }
+        },
+        "tables" : {
+          "type" : "text",
+          "fields" : {
+            "keyword" : {
+              "type" : "keyword",
+              "ignore_above" : 256
+            }
+          }
+        },
+        "taskTs" : {
+          "type" : "text",
+          "fields" : {
+            "keyword" : {
+              "type" : "keyword",
+              "ignore_above" : 256
+            }
+          }
+        },
+        "taskTsStr" : {
+          "type" : "date",
+          "format" : "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
+        },
+        "time" : {
+          "type" : "long"
+        },
+        "topic" : {
+          "type" : "text",
+          "fields" : {
+            "keyword" : {
+              "type" : "keyword",
+              "ignore_above" : 256
+            }
+          }
+        },
+        "type" : {
+          "type" : "text",
+          "fields" : {
+            "keyword" : {
+              "type" : "keyword",
+              "ignore_above" : 256
+            }
+          }
+        }
+      }
+    }
+  }
+
+PUT centralhub_schedule_task/_mapping
+{
+    "properties": {
+
+        "jsonFields": {
+            "type": "nested",
+            "include_in_parent": true,
+            "properties": {
+                "dataTimeValue": {
+                    "type": "date",
+                    "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
+                },
+                "key": {
+                    "type": "keyword"
+                },
+                "value": {
+                    "type": "keyword"
+                }
+            }
+        }
+    }
+}
+
+#查询不存在某个字段的数据
+GET centralhub_schedule_task/_search
+{
+  "size": 1000,
+  "query": {
+    "bool": {
+      "must": [
+       { "term": { "centralhubTaskId": "1199418643636957184" } }
+        
+      ],
+      "must_not": {
+        "exists": {
+          "field": "syncAll"
+        }
+      }
+
+    }
+  }
+}
+
+
+#指定条件进行count
+GET centralhub_schedule_task/_count
+{
+  
+  "query": {
+    "bool": {
+      "must": [
+        { "term": { "centralhubTaskId": "1224755488486805504" } },
+        { "term": { "type": "source" } },
+        { "term": { "syncAll": "true" } }
+       
+      ]
+    }
+  }
+}
+
+#查询数据库所有数据
+GET centralhub_schedule_task/_count
+{
+
+  "query": {
+    "bool": {
+      "must": [
+        { "term": { "centralhubTaskId": "1228117803248525312" } }
+       
+      ]
+    }
+  }
+}
+
+
+#查询任务源端指定日期读取数据的条数
+GET centralhub_schedule_task/_search
+{
+    "from": 0,
+  "size": 10000,
+  "query": {
+    "bool": {
+      "must": [
+        { "term": { "centralhubTaskId": "1230545754049093632" } }
+      ]
+    }
+  }
+}
+
+
+
+
+
+

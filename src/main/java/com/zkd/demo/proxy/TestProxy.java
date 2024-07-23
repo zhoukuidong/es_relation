@@ -1,6 +1,7 @@
 package com.zkd.demo.proxy;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.ListUtil;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -15,16 +16,14 @@ import java.util.stream.Collectors;
 public class TestProxy {
 
     public static void main(String[] args) {
-        Fruit o = (Fruit)Proxy.newProxyInstance(Apple.class.getClassLoader(), new Class[]{Fruit.class}, new InvocationHandler() {
-            @Override
-            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                System.out.println("====before=====");
-                Object result = method.invoke(new Apple(),args);
-                System.out.println("====after=====");
-                return result;
-            }
-        });
-        System.out.println(o.price());
+        List<Integer> testList = CollUtil.newArrayList(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20);
+        List<List<Integer>> partition = ListUtil.partition(testList, 3);
+        System.out.println(partition);
+        System.out.println(testList);
+        System.out.println("================");
+        List<List<Integer>> split = ListUtil.split(testList, 3);
+        System.out.println(split);
+
     }
 //    kafka 分页
 //    public List<Map<String, String>> pageQueryData(DataQueryCmd dataQueryCmd) {

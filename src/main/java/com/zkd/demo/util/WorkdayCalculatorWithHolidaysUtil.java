@@ -10,6 +10,7 @@ import com.zkd.demo.vo.HolidayVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 
+import java.sql.SQLException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -22,14 +23,28 @@ import java.util.Set;
 @Slf4j
 public class WorkdayCalculatorWithHolidaysUtil {
 
+
     private static RedisTemplate<String, String> redisTemplate = SpringUtil.getBean("redisTemplate");
 
-    /**
-     * 解析节假日json串
-     *
-     * @param holidayData
-     * @return
-     */
+    public static void main(String[] args) throws SQLException, ClassNotFoundException {
+        StringBuilder sb = new StringBuilder();
+        String sql = "insert into gbase8s_test (id,t_char,t_date,t_datetime) values ";
+        sb.append(sql);
+        for (int i = 500; i <= 10000; i++) {
+            sb.append("(").append(i).append( ",'z','2024-03-22','2024-03-22 12:00:00') ");
+            if (i == 10000) {
+                sb.append(";");            }
+
+        }
+        System.out.println(sb.toString());
+    }
+
+        /**
+         * 解析节假日json串
+         *
+         * @param holidayData
+         * @return
+         */
     public static HolidayVo parseHolidays(String holidayData) {
         //法定节假日
         Set<LocalDate> holidays = new HashSet<>();

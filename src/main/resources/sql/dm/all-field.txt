@@ -1,0 +1,87 @@
+-- 参考文档：https://eco.dameng.com/document/dm/zh-cn/pm/dm_sql-introduction.html
+-- auto-generated definition
+drop table DM_ALL_FIELDS;
+create table DM_ALL_FIELDS
+(
+    ID             integer IDENTITY(1,1) not null,
+    CHAR_NAME      CHAR(16)      not null,
+    CHARACTER_NAME CHARACTER(16) not null,
+    VARCHAR_NAME   VARCHAR(100)  not null,
+    VARCHAR2_NAME  VARCHAR2(100) not null,
+    NUMERIC_NAME   NUMERIC(4, 1) not null,
+    DECIMAL_NAME   DECIMAL(5, 1) not null,
+    DEC_NAME       DEC(5, 1)     not null,
+    NUMBER_NAME    NUMBER(4,1) not null,
+    INTEGER_NAME   INTEGER       not null,
+    INT_NAME       INT           not null,
+    BIGINT_NAME    BIGINT        not null,
+    TINYINT_NAME   TINYINT       not null,
+    BYTE_NAME      BYTE          not null,
+    SMALLINT_NAME  SMALLINT      not null,
+    VARBINARY_NAME VARBINARY(1024) not null,
+    RAW_NAME       RAW(3) not null,
+    FLOAT_NAME     FLOAT(5)      not null,
+    DOUBLE_NAME    DOUBLE(5) not null,
+    REAL_NAME             REAL  not null,
+    DOUBLE_PRECISION_NAME             DOUBLE PRECISION(3)  not null,
+    BIT_NAME             BIT  not null,
+    DATE_NAME             DATE  not null,
+    TIME_NAME             TIME  not null,
+    TEXT_NAME        TEXT
+);
+
+comment on table DM_ALL_FIELDS is '达梦数据库所有字段表';
+comment on column DM_ALL_FIELDS.ID is '主键';
+comment on column DM_ALL_FIELDS.CHAR_NAME is 'CHAR 类型';
+comment on column DM_ALL_FIELDS.CHARACTER_NAME is 'CHARACTER 类型';
+comment on column DM_ALL_FIELDS.VARCHAR_NAME is 'VARCHAR_NAME 类型';
+comment on column DM_ALL_FIELDS.VARCHAR2_NAME is 'VARCHAR2_NAME 类型';
+-- comment on column DM_ALL_FIELDS.ROWID_NAME is 'ROWID  类型';
+comment on column DM_ALL_FIELDS.NUMERIC_NAME is 'NUMERIC  类型';
+comment on column DM_ALL_FIELDS.DECIMAL_NAME is 'DECIMAL  类型';
+comment on column DM_ALL_FIELDS.DEC_NAME is 'DEC  类型';
+comment on column DM_ALL_FIELDS.NUMBER_NAME is 'NUMBER  类型';
+comment on column DM_ALL_FIELDS.INTEGER_NAME is 'INTEGER  类型';
+comment on column DM_ALL_FIELDS.INT_NAME is 'INT  类型';
+comment on column DM_ALL_FIELDS.BIGINT_NAME is 'BIGINT  类型';
+comment on column DM_ALL_FIELDS.TINYINT_NAME is 'TINYINT  类型';
+comment on column DM_ALL_FIELDS.BYTE_NAME is 'BYTE  类型';
+comment on column DM_ALL_FIELDS.SMALLINT_NAME is 'SMALLINT  类型';
+-- comment on column DM_ALL_FIELDS.BINARY_NAME is 'BINARY  类型';
+
+comment on column DM_ALL_FIELDS.VARBINARY_NAME is 'VARBINARY  类型';
+comment on column DM_ALL_FIELDS.RAW_NAME is 'RAW  类型';
+comment on column DM_ALL_FIELDS.VARBINARY_NAME is 'VARBINARY  类型';
+comment on column DM_ALL_FIELDS.FLOAT_NAME is 'FLOAT   类型';
+comment on column DM_ALL_FIELDS.DOUBLE_NAME is 'DOUBLE  类型';
+comment on column DM_ALL_FIELDS.REAL_NAME is 'REAL  类型';
+comment on column DM_ALL_FIELDS.DOUBLE_PRECISION_NAME is 'DOUBLE PRECISION  类型';
+comment on column DM_ALL_FIELDS.BIT_NAME is 'BIT  类型';
+comment on column DM_ALL_FIELDS.DATE_NAME is 'DATE 类型包括年、月、日信息';
+comment on column DM_ALL_FIELDS.TIME_NAME is 'TIME 类型包括时、分、秒信息';
+-- comment on column DM_ALL_FIELDS.TIMESTAMP_NAME is 'TIMESTAMP 类型包括年、月、日、时、分、秒信息';
+comment on column DM_ALL_FIELDS.TEXT_NAME is 'TEXT   类型';
+-- comment on column DM_ALL_FIELDS.LONGVARCHAR_NAME is 'LONGVARCHAR  类型';
+-- comment on column DM_ALL_FIELDS.IMAGE_NAME is 'IMAGE    类型';
+-- comment on column DM_ALL_FIELDS.LONGVARBINARY_NAME is 'LONGVARBINARY  类型';
+-- comment on column DM_ALL_FIELDS.BLOB_NAME is 'BLOB   类型';
+-- comment on column DM_ALL_FIELDS.CLOB_NAME is 'CLOB  类型';
+-- comment on column DM_ALL_FIELDS.BFILE_NAME is 'BFILE   类型';
+-- comment on column DM_ALL_FIELDS.INTERVAL_YEAR_TO_MONTH_NAME is 'INTERVAL YEAR TO MONTH 类型;描述一个若干年若干月的间隔，引导精度规定了年的取值范围。引导精度取值范围为 1～9，如果未定义，缺省精度为 2';
+-- comment on column DM_ALL_FIELDS.INTERVAL_YEAR_NAME is 'INTERVAL YEAR 类型；描述一个若干年的间隔，引导精度规定了年的取值范围。引导精度取值范围为 1～9，如果未定义，缺省精度为 2';
+-- comment on column DM_ALL_FIELDS.VARBINARY_NAME is 'INTERVAL MONTH 类型；描述一个若干月的间隔，引导精度规定了月的取值范围。引导精度取值范围为 1～9，如果未定义，缺省精度为 2';
+-- comment on column DM_ALL_FIELDS.VARBINARY_NAME is 'INTERVAL DAY描述一个若干日的间隔，引导精度规定了日的取值范围。引导精度取值范围为 1～9，如果未定义，缺省精度为 2。';
+-- comment on column DM_ALL_FIELDS.INTERVAL_DAY_HOUR_NAME is 'INTERVAL DAY TO HOUR 类型描述一个若干日若干小时的间隔，引导精度规定了日的取值范围。引导精度取值范围为 1～9，如果未定义，缺省精度为 2。而时的取值范围在 0 到 23 之间。例如：INTERVAL DAY(1) TO HOUR，其中 DAY(1) 表示日的精度为 1';
+-- comment on column DM_ALL_FIELDS.INTERVAL_DAY_SECOND_NAME is 'INTERVAL DAY TO SECOND 类型 描述一个若干日若干小时若干分钟若干秒的间隔，引导精度规定了日的取值范围。引导精度取值范围为 1～9，如果未定义，缺省精度为 2';
+-- comment on column DM_ALL_FIELDS.INTERVAL_HOUR_NAME is 'INTERVAL HOUR 类型描述一个若干小时的间隔，引导精度规定了小时的取值范围。引导精度取值范围为 1～9，如果未定义，缺省精度为 2';
+-- comment on column DM_ALL_FIELDS.INTERVAL_HOUR_MINUTE_NAME is 'INTERVAL HOUR TO MINUTE 类型描述一个若干小时若干分钟的间隔，引导精度规定了小时的取值范围。引导精度取值范围为 1～9，如果未定义，缺省精度为 2。';
+-- comment on column DM_ALL_FIELDS.INTERVAL_HOUR_SECOND_NAME is 'INTERVAL HOUR TO SECOND 类型描述一个若干小时若干分钟若干秒的间隔，引导精度规定了小时的取值范围。引导精度取值范围为 1～9，如果未定义，缺省精度为 2。小数秒精度规定了秒字段中小数点后面的位数，取值范围为 0～6，如果未定义，缺省精度为 6';
+-- comment on column DM_ALL_FIELDS.INTERVAL_MINUTE_NAME is 'INTERVAL MINUTE 类型描述一个若干分钟的间隔，引导精度规定了分钟的取值范围。引导精度取值范围为 1～9，如果未定义，缺省精度为 2';
+-- comment on column DM_ALL_FIELDS.INTERVAL_MINUTE_SECOND_NAME is 'INTERVAL MINUTE TO SECOND 类型描述一个若干分钟若干秒的间隔，引导精度规定了分钟的取值范围。引导精度取值范围为 1～9，如果未定义，缺省精度为 2';
+-- comment on column DM_ALL_FIELDS.INTERVAL_SECOND_NAME is 'INTERVAL SECOND 类型描述一个若干秒的间隔，引导精度规定了秒整数部分的取值范围。引导精度取值范围为 1～9，如果未定义，缺省精度为 2';
+--
+create unique index SYSDBA.INDEX33556740    on SYSDBA.DM_ALL_FIELDS (ID);
+
+alter table SYSDBA.DM_ALL_FIELDS    add constraint "DM_ALL_FIELDS_pk"  primary key (ID);
+
+SET IDENTITY_INSERT RESOURCE_SZGT ON;

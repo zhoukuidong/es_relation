@@ -1,0 +1,104 @@
+-- 查看系统配置
+SELECT SF_GET_CASE_SENSITIVE_FLAG();
+SELECT * FROM V$DM_INI;
+select * from v$dm_arch_ini;
+-- 查询所有数据库
+select * from v$database;
+-- 查询所有表
+SELECT * FROM user_tables;
+SELECT table_name FROM all_tables;
+SELECT owner AS schema_name, table_name FROM all_tables;
+
+-- 查询当前数据库点位
+SELECT CUR_LSN FROM V$RLOG;
+-- 查询DM是否开启DBMS_LOGMNR
+SELECT SF_CHECK_SYSTEM_PACKAGE('DBMS_LOGMNR');
+
+sp_set_para_value()
+SELECT sp_set_para_value(1,'LOGMNR_PARSE_LOB');
+SP_SET_PARA_VALUE(1,'LOGMNR_PARSE_LOB',1)
+
+select * from SYS.V$DM_INI WHERE para_name LIKE '%LOGMNR_PARSE_LOB%';
+
+
+
+-- 开启CDC
+alter system set 'ARCH_INI'=1;
+alter system set 'RLOG_APPEND_LOGIC'=2;
+alter system set 'RLOG_IGNORE_TABLE_SET'=1;
+alter system set 'RLOG_APPEND_SYSTAB_LOGIC'=0;
+-- 查看数据库归档日志是否开启
+SELECT MAX(CASE WHEN NAME = 'ARCH_INI' THEN VALUE ELSE 0 END)                 AS ARCH_INI,
+       MAX(CASE WHEN NAME = 'RLOG_APPEND_LOGIC' THEN VALUE ELSE 0 END)        AS RLOG_APPEND_LOGIC,
+       MAX(CASE WHEN NAME = 'RLOG_IGNORE_TABLE_SET' THEN VALUE ELSE 0 END)    AS RLOG_IGNORE_TABLE_SET,
+       MAX(CASE WHEN NAME = 'RLOG_APPEND_SYSTAB_LOGIC' THEN VALUE ELSE 0 END) AS RLOG_APPEND_SYSTAB_LOGIC
+FROM V$PARAMETER
+WHERE NAME IN ('ARCH_INI', 'RLOG_APPEND_LOGIC', 'RLOG_IGNORE_TABLE_SET', 'RLOG_APPEND_SYSTAB_LOGIC');
+
+-- 查询有哪些归档日志
+SELECT NAME FROM V$ARCHIVED_LOG;
+-- 清理归档日志
+-- SELECT SF_ARCHIVELOG_DELETE_BEFORE_TIME(SYSDATE-1);
+-- logminer加入日志文件
+dbms_logmnr.add_logfile ('C:\dmdbms\dmarch\ARCHIVE_LOCAL1_0xCAA3409_EP0_2024-05-28_19-03-54.log');
+-- dbms_logmnr.remove_logfile('C:\dmdbms\dmarch\ARCHIVE_LOCAL1_0xCAA3409_EP0_2024-05-10_15-56-22.log');
+-- 如要查看通过 ADD_LOGFILE 添加的归档日志文件，可以通过动态视图 V$LOGMNR_LOGS 进行查询
+-- select low_scn, next_scn, low_time, high_time, log_id, filename from v$logmnr_logs;
+-- 开启归档日志
+sys.dbms_logmnr.start_logmnr(Options=>2128 );
+--  sys.dbms_logmnr.start_logmnr(startScn => '25998343', endScn => '25998354', OPTIONS => 2128 );
+-- 基于DM 进行查询达梦的redolog日志
+SELECT
+    SCN,
+       SQL_REDO,
+       OPERATION_CODE,
+       "TIMESTAMP",
+       XID,
+       CSF,
+       TABLE_NAME,
+       SEG_OWNER,
+       OPERATION,
+       USERNAME,
+       ROW_ID,
+       "ROLL_BACK",
+       RS_ID,
+       STATUS,
+       INFO,
+       SSN,
+       THREAD#
+
+FROM V$LOGMNR_CONTENTS
+WHERE
+--     SCN > 26011861  and
+--    SCN <= 26011895 and
+--   OPERATION IN ('INSERT','UPDATE','DELETE') AND
+--   (TABLE_NAME in ('DM_ALL_FIELDS', 'dm_all_fields') OR TABLE_NAME IS NULL) AND
+   (SEG_OWNER IS NULL OR SEG_OWNER NOT IN
+                            ('APPQOSSYS', 'AUDSYS', 'CTXSYS', 'DVSYS', 'DBSFWUSER', 'DBSNMP', 'GSMADMIN_INTERNAL',
+                             'LBACSYS', 'MDSYS', 'OJVMSYS', 'OLAPSYS', 'ORDDATA', 'ORDSYS', 'OUTLN', 'SYS', 'SYSTEM',
+                             'WMSYS', 'XDB'))
+  AND OPERATION_CODE IN (1, 2, 3, 5, 6, 7, 9, 10, 11, 29, 34, 36, 255)  order by SCN;
+
+--  终止归档日志文件分析；
+dbms_logmnr.end_logmnr();
+
+-- 查询系统点位情况
+select name as file_name, first_change# as first_change,next_change# as next_change, archived as archived, arch_seq as seq, next_seq as next_seq, first_time , next_time from v$archived_log;
+select ckpt_lsn,   file_lsn,   flush_lsn,     cur_lsn,   next_seq,    global_next_seq from v$rlog;
+
+-- 查询系统点位 全字段
+
+
+
+
+
+
+
+select * from  v$archived_log  where STATUS = 'A' and ARCH_TYPE = 'LOCAL';
+-- 查询系统最老点位
+select  min(first_change#) as first_change# from  v$archived_log  where status = 'a' and arch_type = 'local';
+-- 查看系统最新点位
+select cur_lsn from V$RLOG;
+select  max(first_change#) as first_change# from  v$archived_log  where status = 'a' and arch_type = 'local';
+
+

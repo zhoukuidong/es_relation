@@ -1,0 +1,209 @@
+source /home/gbase/.bash_profile
+
+
+su - gbasedbt
+cd /opt/gbase/bin
+#查看cdc捕获表相关信息
+onstat -g cdc table
+
+用户名
+gbasedbt
+密码
+GBase123
+
+jdbcurl:
+jdbc:gbasedbt-sqli://10.0.77.77:4317/gbase8s1:GBASEDBTSERVER=gbase01;SQLMODE=Oracle;DB_LOCALE=zh_CN.57372;
+
+cdcurl:
+jdbc:gbasedbt-sqli://10.0.77.77:4317/syscdcv1:GBASEDBTSERVER=gbase01;user=gbasedbt;password=GBase123;DB_LOCALE=zh_CN.57372;IFX_LOCK_MODE_WAIT=-1;DBDATE=Y4MD-
+
+
+前置操作：
+1. CREATE DATABASE 数据库名称 WITH LOG;开启带日志模式的库（新增库）
+      如果当前库是非日志模式的话 需要将其改为日志模式  操作可见文档：https://blog.csdn.net/weixin_47390342/article/details/135292841
+切换到sysadmin用户执行：
+Execute function admin('alter logmode','数据库名称','b');
+退出命令行后再执行：
+ontape -s -L 0 -t /dev/null 数据库名称
+     
+2. 打开要从中捕获数据更改的所有数据库的日志记录。有关日志记录的信息。 
+3. 从 $GBASEDBTDIR/etc 目录以用户 gbasedbt 身份运行以下脚本：syscdcv1.sql
+4. 通过以用户 gbasedbt 的身份创建到 syscdcv1 数据库的连接，验证该数据库是否存在。例如，您可以使用 DB Access 连接到syscdcv1 数据库。
+5. 将 DB_LOCALE 环境变量设置为与要从中捕获数据的数据库的区域设置相同。
+
+
+执行脚本：
+ 在开始使用变更数据捕获 API 之前，必须准备好数据库和数据库服务器。 
+ 执行以下任务以准备使用变更数据捕获 API： 
+ 1、打开要从中捕获数据更改的所有数据库的日志记录。有关日志记录的信息，请参阅 GBase 8s SQL 指南：语法。 
+ 2、从 $GBASEDBTDIR/etc 目录以用户 gbasedbt 身份运行以下脚本：syscdcv1.sql (命令：dbaccess - syscdcv1.sql)
+ 3、通过以用户 gbasedbt 的身份创建到 syscdcv1 数据库的连接，验证该数据库是否存在。例如，您可以使用 DB Access 连接到syscdcv1 数据库。
+ 4、将 DB_LOCALE 环境变量设置为与要从中捕获数据的数据库的区域设置相同。  
+ 
+
+
+查看连接数
+onstat -g ses|wc -l
+
+查看日志使用情况
+onstat -l
+
+查看物理日志和逻辑日志信息
+gstat -l 
+
+gbase配置文件：
+/opt/gbase/etc下的onconfig.gbase01 
+cat onconfig.gbase01 
+
+
+LOGFILES
+
+
+glogadmin添加/删除日志文件
+
+
+onlog -a -d rootdbs -i 
+
+
+
+export GBASEDBTSERVER=gbase01
+export GBASEDBTDIR=/opt/gbase
+export GBASEDBTSQLHOSTS=/opt/gbase/etc/sqlhosts
+export ONCONFIG=onconfig.gbase01
+export PATH=/opt/gbase/bin:$PATH
+export DB_LOCALE=zh_CN.utf8
+export CLIENT_LOCALE=zh_CN.utf8
+unset GL_USEGLU
+export PATH=$GBASEDBTDIR/bin:$GBASEDBTDIR/sbin:$PATH
+
+
+添加逻辑日志：
+onparams -a -d rootdbs -s 2000000
+
+
+onspaces -c -d logiclog -p /opt/gbase/data/logiclog -o 0 -s 210000 -k 2
+
+onparams -a -d logiclog -s 1000000
+
+1255825093200027648
+
+merge into 语法：
+MERGE INTO template_source_gb16
+    USING (SELECT 9  id, 10  smallint_a, 10  int8_a, 10  bigint_a, 8  decimal_a, 8  float_a, '8888'  varchar_a FROM dual)
+        INCOMING ON (template_source_gb16.id=INCOMING.id)
+    WHEN MATCHED THEN UPDATE SET
+        template_source_gb16.smallint_a=INCOMING.smallint_a,
+        template_source_gb16.int8_a=INCOMING.int8_a,
+        template_source_gb16.bigint_a=INCOMING.bigint_a,
+        template_source_gb16.decimal_a=INCOMING.decimal_a,
+        template_source_gb16.float_a=INCOMING.float_a,
+        template_source_gb16.varchar_a=INCOMING.varchar_a
+    WHEN NOT MATCHED THEN INSERT (smallint_a,int8_a,
+                                  bigint_a,decimal_a,
+                                  float_a,varchar_a,id)
+        VALUES (INCOMING.smallint_a,INCOMING.int8_a,INCOMING.bigint_a,INCOMING.decimal_a,INCOMING.float_a,INCOMING.varchar_a,INCOMING.id)
+
+
+
+参考文档：管理员指南 管理员参考 cdc指南等
+添加/删除逻辑日志相关文档地址：https://blog.csdn.net/qq_45708407/article/details/122308853
+
+读取性能问题：（调大max_recs？？？）
+cdc_opensess(server_name,session_ID,timeout,max_recs,minor_version,minor_version)
+
+
+1170947992
+
+21491191888
+
+1172252816
+
+create table gaussdb.t_targe_02
+(
+    id           int not null
+        primary key,
+    t_int        int,
+    t_varchar_01 varchar(255),
+    t_varchar_02 varchar(255),
+    t_varchar_03 varchar(255),
+	t_varchar_04 varchar(255),
+    t_text       TEXT,
+	t_float      FLOAT8,
+	t_decimal    decimal(10,2),
+    t_date       DATE,
+    t_datetime   TIMESTAMP
+);
+
+
+{
+	"gaussdb.t_targe_02": {
+		"expFieldDTOList": [{
+			"fieldName": "SZGT_CDC_LOGCREATETIME",
+			"fieldType": "varchar"
+		}, {
+			"fieldName": "SZGT_CDC_LOGWRITETIME",
+			"fieldType": "date"
+		}, {
+			"fieldName": "ddd",
+			"fieldType": "VARCHAR",
+			"fieldValue": "999"
+		}]
+	}
+}
+
+gaussdb:
+CREATE TABLE template_target_gss_1 (
+  id bigint NOT null PRIMARY KEY,
+  integer_a  int,
+  bigint_a bigint,
+  real_a real,
+  float8_a float8,
+  double_a double precision,
+  decimal_a decimal(10,5) default NULL,
+  numberic_a numeric,
+  varchar_a varchar(500),
+  char_a char(100),
+  character_a character(100),
+  nchar_a nchar(500),
+  varchar2_a varchar2(500),
+  nvarchar2_a NVARCHAR2(500),
+  text_a text,
+  date_a date,
+  timestamp_a timestamp without time zone
+);
+
+<dependency>
+  <groupId>com.gbase.jdbc</groupId>
+  <artifactId>gbase8s-nolog</artifactId>
+  <version>3.5.0_2_36800b</version>
+</dependency>
+
+mysql版脚本:
+INSERT INTO t_dict_info (uuid, gmt_create, gmt_modified, tanent_uuid, is_delete, field_code, field_zh_name, field_en_name, status) VALUES (30, '2024-07-11 00:00:00', '2024-07-11 00:00:00', null, 0, '80000', 'Gaussdb', 'Gaussdb', 'ON');
+
+INSERT INTO t_dict_value (uuid, gmt_create, gmt_modified, is_delete, field_code, selector_name, selector_value, selector_order, status) VALUES (117, '2024-07-11 00:00:00', '2024-07-11 00:00:00', 0, '100', 'Gaussdb', '80000', 8, 'ON');
+-- Gaussdb版本号
+INSERT INTO t_dict_value (uuid, gmt_create, gmt_modified, is_delete, field_code, selector_name, selector_value, selector_order, status) VALUES (118, '2024-07-11 00:00:00', '2024-07-11 00:00:00', 0, '80000', 'Gaussdb', 'Gaussdb8.x', 2, 'ON');
+
+-- Gaussdb
+INSERT INTO t_dict_value (uuid, gmt_create, gmt_modified, tanent_uuid, is_delete, field_code, selector_name, selector_value, selector_order, status) VALUES (119, '2024-07-11 00:00:00', '2024-07-11 00:00:00', null, 0, '800001', '连接地址', '800001001', 1, 'ON');
+INSERT INTO t_dict_value (uuid, gmt_create, gmt_modified, tanent_uuid, is_delete, field_code, selector_name, selector_value, selector_order, status) VALUES (120, '2024-07-11 00:00:00', '2024-07-11 00:00:00', null, 0, '800002', '端口', '800001002', 2, 'ON');
+INSERT INTO t_dict_value (uuid, gmt_create, gmt_modified, tanent_uuid, is_delete, field_code, selector_name, selector_value, selector_order, status) VALUES (121, '2024-07-11 00:00:00', '2024-07-11 00:00:00', null, 0, '800003', '库名', '800001003', 3, 'ON');
+INSERT INTO t_dict_value (uuid, gmt_create, gmt_modified, tanent_uuid, is_delete, field_code, selector_name, selector_value, selector_order, status) VALUES (122, '2024-07-11 00:00:00', '2024-07-11 00:00:00', null, 0, '800004', '登录用户名', '800001004', 4, 'ON');
+INSERT INTO t_dict_value (uuid, gmt_create, gmt_modified, tanent_uuid, is_delete, field_code, selector_name, selector_value, selector_order, status) VALUES (123, '2024-07-11 00:00:00', '2024-07-11 00:00:00', null, 0, '800005', '登录密码', '800001005', 5, 'ON');
+
+
+
+pgsql版脚本
+-- Gaussdb初始化SQL
+INSERT INTO T_DICT_INFO ("UUID", "GMT_CREATE", "GMT_MODIFIED", "TANENT_UUID", "IS_DELETE", "FIELD_CODE", "FIELD_ZH_NAME", "FIELD_EN_NAME", "STATUS") VALUES (30, '2024-07-11 00:00:00', '2024-07-11 00:00:00', null, 0, '80000', 'Gaussdb', 'Gaussdb', 'ON');
+-- Gaussdb数据源类型
+INSERT INTO T_DICT_VALUE ("UUID", "GMT_CREATE", "GMT_MODIFIED", "IS_DELETE", "FIELD_CODE", "SELECTOR_NAME", "SELECTOR_VALUE", "SELECTOR_ORDER", "STATUS") VALUES (117, '2024-07-11 00:00:00', '2024-07-11 00:00:00', 0, '100', 'Gaussdb', '80000', 8, 'ON');
+-- Gaussdb版本号
+INSERT INTO T_DICT_VALUE ("UUID", "GMT_CREATE", "GMT_MODIFIED", "IS_DELETE", "FIELD_CODE", "SELECTOR_NAME", "SELECTOR_VALUE", "SELECTOR_ORDER", "STATUS") VALUES (118, '2024-07-11 00:00:00', '2024-07-11 00:00:00', 0, '80000', 'Gaussdb', 'Gaussdb8.x', 2, 'ON');
+-- Gaussdb连接信息相关字段
+INSERT INTO T_DICT_VALUE ("UUID", "GMT_CREATE", "GMT_MODIFIED", "IS_DELETE", "FIELD_CODE", "SELECTOR_NAME", "SELECTOR_VALUE", "SELECTOR_ORDER", "STATUS") VALUES (119, '2024-07-11 00:00:00', '2024-07-11 00:00:00', 0, '800001', '连接地址', '800001001', 3, 'ON');
+INSERT INTO T_DICT_VALUE ("UUID", "GMT_CREATE", "GMT_MODIFIED", "IS_DELETE", "FIELD_CODE", "SELECTOR_NAME", "SELECTOR_VALUE", "SELECTOR_ORDER", "STATUS") VALUES (120, '2024-07-11 00:00:00', '2024-07-11 00:00:00', 0, '800002', '端口', '800001002', 4, 'ON');
+INSERT INTO T_DICT_VALUE ("UUID", "GMT_CREATE", "GMT_MODIFIED", "IS_DELETE", "FIELD_CODE", "SELECTOR_NAME", "SELECTOR_VALUE", "SELECTOR_ORDER", "STATUS") VALUES (121, '2024-07-11 00:00:00', '2024-07-11 00:00:00', 0, '800003', '库名', '800001003', 5, 'ON');
+INSERT INTO T_DICT_VALUE ("UUID", "GMT_CREATE", "GMT_MODIFIED", "IS_DELETE", "FIELD_CODE", "SELECTOR_NAME", "SELECTOR_VALUE", "SELECTOR_ORDER", "STATUS") VALUES (122, '2024-07-11 00:00:00', '2024-07-11 00:00:00', 0, '800004', '登录用户名', '800001004', 6, 'ON');
+INSERT INTO T_DICT_VALUE ("UUID", "GMT_CREATE", "GMT_MODIFIED", "IS_DELETE", "FIELD_CODE", "SELECTOR_NAME", "SELECTOR_VALUE", "SELECTOR_ORDER", "STATUS") VALUES (123, '2024-07-11 00:00:00', '2024-07-11 00:00:00', 0, '800005', '登录密码', '800001005', 7, 'ON');

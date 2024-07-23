@@ -1,0 +1,44 @@
+-- 参考文档：https://eco.dameng.com/document/dm/zh-cn/pm/dm_sql-introduction.html
+-- auto-generated definition
+drop table DM_TIME_FIELDS;
+create table DM_TIME_FIELDS
+(
+    ID             integer IDENTITY(1,1) not null,
+    DATE_NAME             DATE  not null,
+    TIME_NAME             TIME  not null,
+    TIMESTAMP_NAME TIMESTAMP  not null
+--     , INTERVAL_YEAR_TO_MONTH_NAME        INTERVAL YEAR(4) TO MONTH not null
+--     INTERVAL_YEAR_NAME        INTERVAL YEAR(4)  ,
+--     INTERVAL_MONTH_NAME        INTERVAL MONTH(4)  ,
+--     INTERVAL_DAY_NAME        INTERVAL DAY(3)  ,
+--     INTERVAL_DAY_HOUR_NAME        INTERVAL DAY(1) TO HOUR  ,
+--     INTERVAL_DAY_MINUTE_NAME        INTERVAL DAY(2) TO MINUTE  ,
+--     INTERVAL_DAY_SECOND_NAME        INTERVAL DAY(2) TO SECOND(1)  ,
+--     INTERVAL_HOUR_NAME        INTERVAL HOUR(3)  ,
+--     INTERVAL_HOUR_MINUTE_NAME        INTERVAL HOUR(2) TO MINUTE  ,
+--     INTERVAL_HOUR_SECOND_NAME        INTERVAL HOUR(2) TO SECOND(1)  ,
+--     INTERVAL_MINUTE_NAME        INTERVAL MINUTE(3)  ,
+--     INTERVAL_MINUTE_SECOND_NAME        INTERVAL MINUTE(2) TO SECOND(1)  ,
+--     INTERVAL_SECOND_NAME        INTERVAL SECOND(2,1)
+);
+
+comment on table DM_TIME_FIELDS is '达梦数据库所有字段表';
+comment on column DM_TIME_FIELDS.ID is '主键';
+comment on column DM_TIME_FIELDS.DATE_NAME is 'DATE 类型包括年、月、日信息';
+comment on column DM_TIME_FIELDS.TIME_NAME is 'TIME 类型包括时、分、秒信息';
+comment on column DM_TIME_FIELDS.TIMESTAMP_NAME is 'TIMESTAMP 类型包括年、月、日、时、分、秒信息';
+-- comment on column DM_TIME_FIELDS.INTERVAL_YEAR_TO_MONTH_NAME is 'INTERVAL YEAR TO MONTH 类型;描述一个若干年若干月的间隔，引导精度规定了年的取值范围。引导精度取值范围为 1～9，如果未定义，缺省精度为 2';
+-- comment on column DM_TIME_FIELDS.INTERVAL_YEAR_NAME is 'INTERVAL YEAR 类型；描述一个若干年的间隔，引导精度规定了年的取值范围。引导精度取值范围为 1～9，如果未定义，缺省精度为 2';
+-- comment on column DM_TIME_FIELDS.VARBINARY_NAME is 'INTERVAL MONTH 类型；描述一个若干月的间隔，引导精度规定了月的取值范围。引导精度取值范围为 1～9，如果未定义，缺省精度为 2';
+-- comment on column DM_TIME_FIELDS.VARBINARY_NAME is 'INTERVAL DAY描述一个若干日的间隔，引导精度规定了日的取值范围。引导精度取值范围为 1～9，如果未定义，缺省精度为 2。';
+-- comment on column DM_TIME_FIELDS.INTERVAL_DAY_HOUR_NAME is 'INTERVAL DAY TO HOUR 类型描述一个若干日若干小时的间隔，引导精度规定了日的取值范围。引导精度取值范围为 1～9，如果未定义，缺省精度为 2。而时的取值范围在 0 到 23 之间。例如：INTERVAL DAY(1) TO HOUR，其中 DAY(1) 表示日的精度为 1';
+-- comment on column DM_TIME_FIELDS.INTERVAL_DAY_SECOND_NAME is 'INTERVAL DAY TO SECOND 类型 描述一个若干日若干小时若干分钟若干秒的间隔，引导精度规定了日的取值范围。引导精度取值范围为 1～9，如果未定义，缺省精度为 2';
+-- comment on column DM_TIME_FIELDS.INTERVAL_HOUR_NAME is 'INTERVAL HOUR 类型描述一个若干小时的间隔，引导精度规定了小时的取值范围。引导精度取值范围为 1～9，如果未定义，缺省精度为 2';
+-- comment on column DM_TIME_FIELDS.INTERVAL_HOUR_MINUTE_NAME is 'INTERVAL HOUR TO MINUTE 类型描述一个若干小时若干分钟的间隔，引导精度规定了小时的取值范围。引导精度取值范围为 1～9，如果未定义，缺省精度为 2。';
+-- comment on column DM_TIME_FIELDS.INTERVAL_HOUR_SECOND_NAME is 'INTERVAL HOUR TO SECOND 类型描述一个若干小时若干分钟若干秒的间隔，引导精度规定了小时的取值范围。引导精度取值范围为 1～9，如果未定义，缺省精度为 2。小数秒精度规定了秒字段中小数点后面的位数，取值范围为 0～6，如果未定义，缺省精度为 6';
+-- comment on column DM_TIME_FIELDS.INTERVAL_MINUTE_NAME is 'INTERVAL MINUTE 类型描述一个若干分钟的间隔，引导精度规定了分钟的取值范围。引导精度取值范围为 1～9，如果未定义，缺省精度为 2';
+-- comment on column DM_TIME_FIELDS.INTERVAL_MINUTE_SECOND_NAME is 'INTERVAL MINUTE TO SECOND 类型描述一个若干分钟若干秒的间隔，引导精度规定了分钟的取值范围。引导精度取值范围为 1～9，如果未定义，缺省精度为 2';
+-- comment on column DM_TIME_FIELDS.INTERVAL_SECOND_NAME is 'INTERVAL SECOND 类型描述一个若干秒的间隔，引导精度规定了秒整数部分的取值范围。引导精度取值范围为 1～9，如果未定义，缺省精度为 2';
+--
+SET IDENTITY_INSERT RESOURCE_SZGT ON;
+INSERT INTO SYSDBA.DM_TIME_FIELDS (DATE_NAME, TIME_NAME, TIMESTAMP_NAME) VALUES ('2024-05-23', '11:13:04', '2024-05-23 11:13:00.000000');
