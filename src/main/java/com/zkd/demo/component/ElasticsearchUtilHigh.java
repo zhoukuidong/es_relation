@@ -47,10 +47,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-/**
- * @author ZhangLi
- * @date 2023/6/4
- */
 @Slf4j
 @Component
 public class ElasticsearchUtilHigh {

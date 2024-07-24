@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
 
 /**
- * @author ZhangLi
  * @date 2023/8/8
  */
 public class CusDsWebInterceptor implements HandlerInterceptor {

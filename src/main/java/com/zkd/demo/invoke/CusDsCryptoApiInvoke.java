@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * @author ZhangLi
  * @date 2023/8/17
  * @desc 加解密操作，使用配置的sm4密钥进行二次加解密操作
  */

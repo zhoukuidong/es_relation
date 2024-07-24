@@ -14,8 +14,6 @@ public interface DictService {
      * @param basePackage 包扫描地址
      * @param filterDict  需要过滤不加载的枚举类simpleName
      * @return {@link Map < String, Map< String, Object>>}
-     * @author: xiaosl
-     * @date: 2021-08-27 20:18:02
      * @description: 基于包扫描枚举类加载数据字典
      */
     default Map<String, Map<String, Object>> getDictWithPackages(String basePackage, List<String> filterDict) {
@@ -44,23 +42,12 @@ public interface DictService {
         return dictMap;
     }
 
-    /**
-     * @return {@link Map< String, Map< String, Object>>}
-     * @author: xiaosl
-     * @date: 2021-08-27 20:19:38
-     * @description: 基于数据库加载数据字典
-     */
+
     default Map<String, Map<String, Object>> getDictWithDb() {
         return new HashMap<>();
     }
 
-    /**
-     * @param userId 用户编号
-     * @return {@link String}
-     * @author: xiaosl
-     * @date: 2021-06-30 23:01:33
-     * @description: 根据userId获取用户名称
-     */
+
     public String getUserNameByUserId(Object userId);
 
 

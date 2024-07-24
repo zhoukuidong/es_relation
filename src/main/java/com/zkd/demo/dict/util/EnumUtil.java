@@ -52,7 +52,6 @@ public class EnumUtil {
 
     /**
      * enum转换为map
-     * @author: xiaosl
      * @date: 2020-03-11 16:51:39
      * @param enumClass
      * @return {@link Map < String, String>}

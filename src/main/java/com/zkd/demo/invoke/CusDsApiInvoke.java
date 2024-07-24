@@ -22,10 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/**
- * @author ZhangLi
- * @date 2023/8/14
- */
 @Component
 @Slf4j
 public class CusDsApiInvoke implements CusDsApi {

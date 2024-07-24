@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-    com.zkd.demo.config.CusDsConfig,com.custom.starters.dict.config.CustomDictJacksonAutoConfiguration
+    com.zkd.demo.config.CusDsConfig,com.custom.starters.dict.config.CustomDictJacksonAutoConfiguration,com.custom.crypto.mybaties.config.CustomMybatisCryptoAutoConfig
